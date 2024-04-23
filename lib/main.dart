@@ -1,7 +1,12 @@
+import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:todoapp/Layout/homeLayout.dart';
+import 'package:todoapp/shared/BlocObserver.dart';
+
+import 'Layout/HomeLayout_SL.dart';
 
 void main() {
+  Bloc.observer = MyBlocObserver();
   runApp(const MyApp());
   WidgetsFlutterBinding.ensureInitialized();
 }
@@ -18,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: HomeLayout()
+      home: HomeLayout_SL()
     );
   }
 }
