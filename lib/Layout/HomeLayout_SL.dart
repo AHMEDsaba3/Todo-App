@@ -10,158 +10,163 @@ import 'package:todoapp/shared/cubit/cubit.dart';
 import 'package:todoapp/shared/cubit/states.dart';
 
 class HomeLayout_SL extends StatelessWidget {
-  Database? database;
-  bool ButtomSheetShow =false;
-  IconData ButtomSheetIcon=Icons.edit;
-  var ScaffoldKey =GlobalKey<ScaffoldState>();
-  var Formkey =GlobalKey<FormState>();
-  var TitleController =TextEditingController();
-  var DateController =TextEditingController();
-  var TimeController =TextEditingController();
-  var StatusController =TextEditingController();
-
+  var ScaffoldKey = GlobalKey<ScaffoldState>();
+  var Formkey = GlobalKey<FormState>();
+  var TitleController = TextEditingController();
+  var DateController = TextEditingController();
+  var TimeController = TextEditingController();
+  var StatusController = TextEditingController();
 
   Widget build(BuildContext context) {
-    return  BlocProvider(
-      create: (context) => AppCubit(),
-      child: BlocConsumer<AppCubit,AppStates>(
-        listener: (context, state) {} ,
+    return BlocProvider(
+      create: (context) => AppCubit()..CreateDb(),
+      child: BlocConsumer<AppCubit, AppStates>(
+        listener: (context, state) {},
         builder: (context, state) {
           AppCubit cubit = AppCubit.get(context);
           return Scaffold(
             key: ScaffoldKey,
             appBar: AppBar(
                 automaticallyImplyLeading: false,
-                title: Center(child: Text("TODO",style: TextStyle(fontWeight: FontWeight.bold),)),backgroundColor: Colors.deepPurple),
-            floatingActionButton: FloatingActionButton(onPressed: () {
-              if(ButtomSheetShow){
-                if(Formkey.currentState!.validate()){
-                  InsertDb(TitleController.text, TimeController.text, DateController.text).then((value) {
-                    Navigator.pop(context);
-                    ButtomSheetShow=false;
-                    // setState(() {
-                    //   ButtomSheetIcon =Icons.edit;
-                    // });
+                title: Center(
+                    child: Text(
+                  "TODO",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                )),
+                backgroundColor: Colors.deepPurple),
+            floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  if (cubit.ButtomSheetShow) {
+                    if (Formkey.currentState!.validate()) {
+                      cubit.InsertDb(TitleController.text, TimeController.text,
+                              DateController.text)
+                          .then((value) {
+                        Navigator.pop(context);
+                        cubit.changeButtonSheetIcon(false, Icons.edit);
+                      });
+                    }
+                  } else {
+                    ScaffoldKey.currentState
+                        ?.showBottomSheet(
+                            (context) => SingleChildScrollView(
+                                  child: Container(
+                                    color: Colors.grey[200],
+                                    child: Padding(
+                                      padding: EdgeInsets.all(20.0),
+                                      child: Form(
+                                        key: Formkey,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            TextFormWidget(
+                                              Controller: TitleController,
+                                              label: "Title",
+                                              keyboardType: TextInputType.text,
+                                              preIcon: Icons.title,
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return 'title must not be empty';
+                                                }
+                                                return null;
+                                              },
+                                            ),
+                                            TextFormWidget(
+                                              Controller: TimeController,
+                                              label: "Time",
+                                              keyboardType: TextInputType.text,
+                                              preIcon: Icons.watch_later,
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return 'Time must not be empty';
+                                                }
+                                                return null;
+                                              },
+                                              ontap: () {
+                                                showTimePicker(
+                                                        context: context,
+                                                        initialTime:
+                                                            TimeOfDay.now())
+                                                    .then((value) =>
+                                                        TimeController.text =
+                                                            value!
+                                                                .format(context)
+                                                                .toString());
+                                              },
+                                              Clickable: false,
+                                            ),
+                                            TextFormWidget(
+                                              Controller: DateController,
+                                              label: "Date",
+                                              keyboardType: TextInputType.text,
+                                              preIcon: Icons.date_range,
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return 'Date must not be empty';
+                                                }
+                                                return null;
+                                              },
+                                              ontap: () {
+                                                showDatePicker(
+                                                        context: context,
+                                                        initialDate:
+                                                            DateTime.now(),
+                                                        firstDate:
+                                                            DateTime.now(),
+                                                        lastDate:
+                                                            DateTime.parse(
+                                                                "2030-12-31"))
+                                                    .then((value) => DateController
+                                                            .text =
+                                                        "${value?.day}/${value?.month}/${value?.year}");
+                                              },
+                                              Clickable: false,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            elevation: 20)
+                        .closed
+                        .then((value) {
+                      cubit.changeButtonSheetIcon(false, Icons.edit);
+                    });
+                    cubit.changeButtonSheetIcon(true, Icons.add);
+                  }
+                },
+                child: Icon(cubit.ButtomSheetIcon)),
+            body:
+            // add loading Circular
+            // state is AppGetDataBaseLoading ? Center(child: CircularProgressIndicator()),
+            cubit.tasks.length == 0
+                ? Center(
+                    child: Text(
+                    'No Tasks Added',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ))
+                : cubit.Screens[cubit.currentIndex],
 
-                  });
-                }
-
-              }else{
-                ScaffoldKey.currentState?.showBottomSheet((context) => SingleChildScrollView(
-                  child: Container(
-                    color: Colors.grey[200],
-                    child: Padding(
-                      padding:  EdgeInsets.all(20.0),
-                      child: Form(
-                        key: Formkey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextFormWidget(Controller: TitleController , label: "Title", keyboardType: TextInputType.text, preIcon: Icons.title,validator: (value) {
-                              if(value == null||value.isEmpty){
-                                return 'title must not be empty';
-                              }
-                              return null;
-                            },),
-                            TextFormWidget(Controller: TimeController , label: "Time", keyboardType: TextInputType.text, preIcon: Icons.watch_later,validator: (value) {
-                              if( value == null||value.isEmpty){
-                                return 'Time must not be empty';
-                              }
-                              return null;
-                            },ontap: () {
-                              showTimePicker(context: context, initialTime: TimeOfDay.now()).
-                              then((value) => TimeController.text = value!.format(context).toString());
-                            },
-                              Clickable: false,
-                            ),
-                            TextFormWidget(Controller: DateController , label: "Date", keyboardType: TextInputType.text, preIcon: Icons.date_range,validator: (value) {
-                              if(value == null||value.isEmpty){
-                                return 'Date must not be empty';
-                              }
-                              return null;
-                            },ontap: () {
-                              showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime.parse("2030-12-31")).
-                              then((value) => DateController.text="${value?.day}/${value?.month}/${value?.year}");
-                            },
-                              Clickable: false,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),elevation: 20
-                ).closed.then((value) {
-                  ButtomSheetShow=false;
-                  // setState(() {
-                  //   ButtomSheetIcon =Icons.edit;
-                  // });
-                });
-                ButtomSheetShow=true;
-                // setState(() {
-                //   ButtomSheetIcon=Icons.add;
-                // });
-              }
-
-            },child: Icon(ButtomSheetIcon)),
-            body: cubit.Screens[cubit.currentIndex],
             bottomNavigationBar: BottomNavigationBar(
                 type: BottomNavigationBarType.fixed,
-                currentIndex: cubit.currentIndex ,
+                currentIndex: cubit.currentIndex,
                 onTap: (value) {
                   cubit.changeIndex(value);
                 },
                 items: [
-                  BottomNavigationBarItem(icon: Icon(Icons.task),label: 'Tasks'),
-                  BottomNavigationBarItem(icon: Icon(Icons.task_alt),label: 'Done'),
-                  BottomNavigationBarItem(icon: Icon(Icons.archive),label: 'Archived'),
-
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.task), label: 'Tasks'),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.task_alt), label: 'Done'),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.archive), label: 'Archived'),
                 ]),
-
           );
         },
       ),
     );
-  }
-//creat and open database
-  void CreateDb()async{
-    // id integer
-    // title string
-    // date string
-    // time string
-    // status string
-
-    database = await openDatabase(
-      'todo.db',
-      version: 1,
-      onCreate:(database, version){
-        print('Database Created');
-        database.execute('CREATE TABLE tasks(id INTEGER PRIMARY KEY,title TEXT,date TEXT,time TEXT,status TEXT)').then((value) => print('table created')).catchError((error){'Error when creat table ${error.toString()}';});
-      },
-      onOpen: (db) {
-        GetDataBase(db).then((value) {
-          // setState(() {
-          //   tasks =value;
-          // });
-          print(tasks);
-        });
-        print('database opened');
-      },
-
-    );
-  }
-//insert into database
-  Future InsertDb(@required String title,@required String time,@required String date)async{
-    return await database?.transaction((txn) async{
-      txn.rawInsert('INSERT INTO tasks(title,date,time,status) VALUES ("$title","$date","$time","new")').
-      then((value){print('Task ${value} inserted successfully');}).catchError((error){
-        print("error is${error.toString()}");
-      });
-      return null;
-    });
-  }
-  //get database
-  Future<List<Map>> GetDataBase(database)async{
-    return await database.rawQuery("SELECT * FROM tasks ");
   }
 }
