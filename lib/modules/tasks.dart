@@ -14,7 +14,12 @@ class tasksPage extends StatelessWidget {
       listener: (context, state) {},
       builder: (context, state) {
         var tasks = AppCubit.get(context).NewTask;
-        return ListView.builder(
+        return AppCubit.get(context).NewTask.length == 0
+            ? Center(
+            child: Text(
+              'No New Tasks Added',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            )) : ListView.builder(
           itemBuilder: (context, index) => TaskItem(model: tasks[index]),
           itemCount: tasks.length,
         );

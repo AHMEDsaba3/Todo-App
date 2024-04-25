@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:todoapp/Constant/constant.dart';
 import 'package:todoapp/Widgets/text_form_field.dart';
-import 'package:todoapp/modules/ArchivedTasks.dart';
-import 'package:todoapp/modules/doneTasks.dart';
-import 'package:todoapp/modules/tasks.dart';
 import 'package:todoapp/shared/cubit/cubit.dart';
 import 'package:todoapp/shared/cubit/states.dart';
 
@@ -31,7 +26,31 @@ class HomeLayout_SL extends StatelessWidget {
                 title: Center(
                     child: Text(
                   "TODO",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    //   shadows: [
+                    //   Shadow( // bottomLeft
+                    //       offset: Offset(-1.5, -1.5),
+                    //       color: Colors.black
+                    //   ),
+                    //   Shadow( // bottomRight
+                    //       offset: Offset(1.5, -1.5),
+                    //       color: Colors.black
+                    //   ),
+                    //   Shadow( // topRight
+                    //       offset: Offset(1.5, 1.5),
+                    //       color: Colors.black
+                    //   ),
+                    //   Shadow( // topLeft
+                    //       offset: Offset(-1.5, 1.5),
+                    //       color: Colors.black
+                    //   ),
+                    // ],
+                    foreground: Paint()
+                      ..color = Colors.white ?? Theme.of(context).shadowColor
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth = 3,
+                  ),
                 )),
                 backgroundColor: Colors.deepPurple),
             floatingActionButton: FloatingActionButton(
@@ -140,16 +159,10 @@ class HomeLayout_SL extends StatelessWidget {
                 },
                 child: Icon(cubit.ButtomSheetIcon)),
             body:
-            // add loading Circular
-            // state is AppGetDataBaseLoading ? Center(child: CircularProgressIndicator()),
-            cubit.NewTask.length == 0
-                ? Center(
-                    child: Text(
-                    'No Tasks Added',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ))
-                : cubit.Screens[cubit.currentIndex],
-
+                // add loading Circular
+                state is AppGetDataBaseLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : cubit.Screens[cubit.currentIndex],
             bottomNavigationBar: BottomNavigationBar(
                 type: BottomNavigationBarType.fixed,
                 currentIndex: cubit.currentIndex,

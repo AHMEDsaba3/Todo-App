@@ -14,8 +14,13 @@ class doneTasks extends StatelessWidget {
       listener: (context, state) {},
       builder: (context, state) {
         var tasks = AppCubit.get(context).DoneTask;
-        return ListView.builder(
-          itemBuilder: (context, index) => TaskItem(model: tasks[index]),
+        return AppCubit.get(context).DoneTask.length == 0
+            ? Center(
+            child: Text(
+              'No Done Tasks Added',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            )) :ListView.builder(
+          itemBuilder: (context, index) => TaskItem(model: tasks[index],IsDone: true),
           itemCount: tasks.length,
         );
       },

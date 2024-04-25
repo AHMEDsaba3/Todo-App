@@ -104,6 +104,17 @@ void updateDataBase(
     });
   }
 
+  void DeleteDataBase(
+      @required int id
+      )async{
+   database!.rawUpdate(
+       'DELETE FROM tasks WHERE id = ?',
+        [id]).then((value) {
+          GetDataBase(database);
+          emit(AppDeleteDataBase());
+    });
+  }
+
   void changeButtonSheetIcon(@required bool isShow , @required IconData icon){
     ButtomSheetShow = isShow;
     ButtomSheetIcon = icon;

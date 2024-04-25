@@ -14,8 +14,13 @@ class archivedTasks extends StatelessWidget {
       listener: (context, state) {},
       builder: (context, state) {
         var tasks = AppCubit.get(context).ArchiveTask;
-        return ListView.builder(
-          itemBuilder: (context, index) => TaskItem(model: tasks[index]),
+        return AppCubit.get(context).ArchiveTask.length == 0
+            ? Center(
+            child: Text(
+              'No Archive Tasks Added',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            )) : ListView.builder(
+          itemBuilder: (context, index) => TaskItem(model: tasks[index],IsArchive: true),
           itemCount: tasks.length,
         );
       },
