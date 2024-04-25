@@ -13,7 +13,7 @@ class tasksPage extends StatelessWidget {
     return BlocConsumer<AppCubit, AppStates>(
       listener: (context, state) {},
       builder: (context, state) {
-        var tasks = AppCubit.get(context).tasks;
+        var tasks = AppCubit.get(context).NewTask;
         return ListView.builder(
           itemBuilder: (context, index) => TaskItem(model: tasks[index]),
           itemCount: tasks.length,

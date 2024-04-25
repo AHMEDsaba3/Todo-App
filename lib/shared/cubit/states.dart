@@ -12,4 +12,6 @@ class AppGetDataBaseLoading extends AppStates {}
 
 class AppInsertDataBase extends AppStates {}
 
+class AppUpdateDataBase extends AppStates {}
+
 class ButtonSheetIcon extends AppStates {}

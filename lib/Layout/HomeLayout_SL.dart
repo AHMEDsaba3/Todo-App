@@ -142,7 +142,7 @@ class HomeLayout_SL extends StatelessWidget {
             body:
             // add loading Circular
             // state is AppGetDataBaseLoading ? Center(child: CircularProgressIndicator()),
-            cubit.tasks.length == 0
+            cubit.NewTask.length == 0
                 ? Center(
                     child: Text(
                     'No Tasks Added',

@@ -22,9 +22,12 @@ static AppCubit get(context)=> BlocProvider.of(context);
 
   int currentIndex=0;
   Database? database;
-  List<Map> tasks =[];
+  List<Map> NewTask =[];
+  List<Map> DoneTask =[];
+  List<Map> ArchiveTask =[];
   bool ButtomSheetShow =false;
   IconData ButtomSheetIcon=Icons.edit;
+
 
 
   void changeIndex(index){
@@ -48,11 +51,7 @@ static AppCubit get(context)=> BlocProvider.of(context);
         database.execute('CREATE TABLE tasks(id INTEGER PRIMARY KEY,title TEXT,date TEXT,time TEXT,status TEXT)').then((value) => print('table created')).catchError((error){'Error when creat table ${error.toString()}';});
       },
       onOpen: (database) {
-        GetDataBase(database).then((value) {
-          tasks =value;
-          print(tasks);
-          emit(AppGetDataBase());
-        });
+        GetDataBase(database);
         print('database opened');
       },
 
@@ -67,11 +66,7 @@ static AppCubit get(context)=> BlocProvider.of(context);
       txn.rawInsert('INSERT INTO tasks(title,date,time,status) VALUES ("$title","$date","$time","new")').
       then((value){print('Task ${value} inserted successfully');
       emit(AppInsertDataBase());
-      GetDataBase(database).then((value) {
-        tasks =value;
-        print(tasks);
-        emit(AppGetDataBase());
-      });
+      GetDataBase(database);
       }).catchError((error){
         print("error is${error.toString()}");
       });
@@ -79,9 +74,34 @@ static AppCubit get(context)=> BlocProvider.of(context);
     });
   }
   //get database
-  Future<List<Map>> GetDataBase(database)async{
+ void GetDataBase(database){
+    //to make clear
+    NewTask =[];
+    DoneTask=[];
+    ArchiveTask=[];
     emit(AppGetDataBaseLoading());
-    return await database.rawQuery("SELECT * FROM tasks ");
+    database.rawQuery("SELECT * FROM tasks ").then((value) {
+      value.forEach((element) {
+        if(element['status']=='new')
+          NewTask.add(element);
+        else if(element['status']=='done')
+          DoneTask.add(element);
+        else ArchiveTask.add(element);
+      });
+      emit(AppGetDataBase());
+    });
+  }
+  //update Database
+void updateDataBase(
+      @required String status,
+      @required int id
+      )async{
+   database!.rawUpdate(
+        'UPDATE tasks SET status = ? WHERE id = ?',
+        [status, id]).then((value) {
+          GetDataBase(database);
+          emit(AppUpdateDataBase());
+    });
   }
 
   void changeButtonSheetIcon(@required bool isShow , @required IconData icon){
